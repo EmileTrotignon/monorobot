@@ -7,6 +7,25 @@ let github_cache_dir = Filename.concat cwd "github-api-cache"
 let slack_cache_dir = Filename.concat cwd "slack-api-cache"
 let buildkite_cache_dir = Filename.concat cwd "buildkite-api-cache"
 
+let file_req_to_string ({ Slack.name; alt_txt; content; title; channel; initial_comment; thread_ts } : Slack.file_req) =
+  sprintf
+    {|{ "name": "%s", "alt_txt": "%s",
+  "content": %S,
+  "title": "%s",
+  "channel": %s,
+  "initial_comment": %s,
+  "thread_ts": %s }|}
+    name alt_txt content title
+    (match channel with
+    | None -> "null"
+    | Some channel -> sprintf {|"%s"|} (Slack_channel.Any.project channel))
+    (match initial_comment with
+    | None -> "null"
+    | Some str -> sprintf {|"%s"|} str)
+    (match thread_ts with
+    | None -> "null"
+    | Some ts -> sprintf {|"%s"|} (Slack_timestamp.project ts))
+
 (** return the file with a function f applied unless the file is empty;
  empty file:this is needed to simulate 404 returns from github *)
 let with_cache_file cache_filepath f =
@@ -55,53 +74,12 @@ module Slack_base : Api.Slack = struct
   let lookup_user ?cache:_ ~ctx:_ ~cfg:_ ~email:_ () = Lwt.return @@ Error "undefined for local setup"
   let list_users ?cursor:_ ?limit:_ ~ctx:_ () = Lwt.return @@ Error "undefined for local setup"
   let send_notification ~ctx:_ ~msg:_ = Lwt.return @@ Error "undefined for local setup"
+
+  let send_file ~ctx:_ ~file:_ = Lwt.return @@ Error "undefined for local setup"
+
   let send_chat_unfurl ~ctx:_ ~channel:_ ~ts:_ ~unfurls:_ () = Lwt.return @@ Error "undefined for local setup"
   let send_auth_test ~ctx:_ () = Lwt.return @@ Error "undefined for local setup"
   let get_thread_permalink ~ctx:_ (_thread : State_t.slack_thread) = Lwt.return_none
-end
-
-(** Module for mocking test requests to slack--will output on Stdio *)
-module Slack : Api.Slack = struct
-  include Slack_base
-
-  let lookup_user ?cache:_ ~ctx:_ ~(cfg : Config_t.config) ~email () =
-    let email = List.assoc_opt email cfg.user_mappings |> Option.default email in
-    let mock_user = { Slack_t.id = Slack_user_id.inject (sprintf "id[%s]" email); profile = { email = Some email } } in
-    let mock_response = { Slack_t.user = mock_user } in
-    Lwt.return @@ Ok mock_response
-
-  let list_users ?cursor:_ ?limit:_ ~ctx:_ () =
-    let url = Filename.concat slack_cache_dir "users-list" in
-    with_cache_file url Slack_j.list_users_res_of_string
-
-  let send_notification ~ctx:_ ~msg =
-    let json = msg |> Slack_j.string_of_post_message_req |> Yojson.Basic.from_string |> Yojson.Basic.pretty_to_string in
-    Printf.printf "will notify #%s\n" (Slack_channel.Any.project msg.channel);
-    Printf.printf "%s\n" json;
-    let channel = (Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel)) in
-    let res = { Slack_t.channel = channel; ts = Slack_timestamp.inject "mock_ts" } in
-    Lwt.return @@ Ok (Some res)
-
-  let send_chat_unfurl ~ctx:_ ~channel ~ts ~unfurls () =
-    let req = Slack_j.{ channel; ts; unfurls } in
-    let data = req |> Slack_j.string_of_chat_unfurl_req |> Yojson.Basic.from_string |> Yojson.Basic.pretty_to_string in
-    Printf.printf "will unfurl in #%s\n" (Slack_channel.Ident.project channel);
-    Printf.printf "%s\n" data;
-    Lwt.return @@ Ok ()
-
-  let send_auth_test ~ctx:_ () =
-    Lwt.return
-    @@ Ok
-         ({ url = ""; team = ""; user = ""; team_id = ""; user_id = Slack_user_id.inject "test_slack_user" }
-           : Slack_t.auth_test_res)
-
-  let get_thread_permalink ~ctx:_ (thread : State_t.slack_thread) =
-    Lwt.return_some
-    @@ Printf.sprintf "https://monorobot.slack.com/archives/%s/p%s?thread_ts=%s&cid=%s"
-         (Slack_channel.Ident.project thread.cid)
-         (Stre.replace_all ~str:(Slack_timestamp.project thread.ts) ~sub:"." ~by:"")
-         (Slack_timestamp.project thread.ts)
-         (Slack_channel.Ident.project thread.cid)
 end
 
 (** Simple messages (only the actual text messages that users see) output to log for checking payload commands *)
@@ -115,9 +93,13 @@ module Slack_simple : Api.Slack = struct
       (match msg.Slack_t.text with
       | None -> ""
       | Some s -> sprintf " with %S" s);
-      let channel = (Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel)) in
-      let res = { Slack_t.channel = channel; ts = Slack_timestamp.inject "mock_ts" } in
+    let channel = Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel) in
+    let res = { Slack_t.channel; ts = Slack_timestamp.inject "mock_ts" } in
     Lwt.return @@ Ok (Some res)
+
+    let send_file ~ctx:_ ~(file : Slack.file_req) =
+      log#info "sending %s" ( file.title);
+      Lwt.return_ok ()
 
   let send_chat_unfurl ~ctx:_ ~channel ~ts:_ ~(unfurls : Slack_t.message_attachment Common.StringMap.t) () =
     Printf.printf "will unfurl in #%s\n" (Slack_channel.Ident.project channel);
@@ -146,12 +128,22 @@ module Slack_json : Api.Slack = struct
     log#info "will notify %s" (Slack_channel.Any.project msg.channel);
     let json = Slack_j.string_of_post_message_req msg in
     let url = Uri.of_string "https://api.slack.com/docs/messages/builder" in
-    let url = Uri.add_query_param url ("msg", [ json ]) in
+    let url = Uri.add_query_param url ("file", [ json ]) in
     log#info "%s" (Uri.to_string url);
     log#info "%s" json;
-    let channel = (Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel)) in
-    let res = { Slack_t.channel = channel; ts = Slack_timestamp.inject "mock_ts" } in
+    let channel = Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel) in
+    let res = { Slack_t.channel; ts = Slack_timestamp.inject "mock_ts" } in
     Lwt.return_ok (Some res)
+
+
+    let send_file ~ctx:_ ~(file : Slack.file_req) =
+      log#info "sending %s" ( file.title);
+      let json = file_req_to_string file in
+      let url = Uri.of_string "https://api.slack.com/messaging/files#uploading_files" in
+      let url = Uri.add_query_param url ("msg", [ json ]) in
+      log#info "%s" (Uri.to_string url);
+      log#info "%s" json;
+      Lwt.return_ok ()
 
   let send_chat_unfurl ~ctx:_ ~channel ~ts:_ ~(unfurls : Slack_t.message_attachment Common.StringMap.t) () =
     log#info "will notify %s" (Slack_channel.Ident.project channel);
@@ -168,6 +160,54 @@ module Slack_json : Api.Slack = struct
 
   let get_thread_permalink ~ctx:_ (_thread : State_t.slack_thread) = Lwt.return_none
 end
+(** Module for mocking test requests to slack--will output on Stdio *)
+module Slack : Api.Slack = struct
+  include Slack_base
+
+  let lookup_user ?cache:_ ~ctx:_ ~(cfg : Config_t.config) ~email () =
+    let email = List.assoc_opt email cfg.user_mappings |> Option.default email in
+    let mock_user = { Slack_t.id = Slack_user_id.inject (sprintf "id[%s]" email); profile = { email = Some email } } in
+    let mock_response = { Slack_t.user = mock_user } in
+    Lwt.return @@ Ok mock_response
+
+  let list_users ?cursor:_ ?limit:_ ~ctx:_ () =
+    let url = Filename.concat slack_cache_dir "users-list" in
+    with_cache_file url Slack_j.list_users_res_of_string
+
+  let send_notification ~ctx:_ ~msg =
+    let json = msg |> Slack_j.string_of_post_message_req |> Yojson.Basic.from_string |> Yojson.Basic.pretty_to_string in
+    Printf.printf "will notify #%s\n" (Slack_channel.Any.project msg.channel);
+    Printf.printf "%s\n" json;
+    let channel = Slack_channel.Ident.inject (Slack_channel.Any.project msg.channel) in
+    let res = { Slack_t.channel; ts = Slack_timestamp.inject "mock_ts" } in
+    Lwt.return @@ Ok (Some res)
+
+    let send_file ~ctx:_ ~(file : Slack.file_req) =
+      let json = file_req_to_string file in
+      Printf.printf "will upload #%s\n" (file.title);
+      Printf.printf "%s\n" json;
+      Lwt.return @@ Ok ()
+  let send_chat_unfurl ~ctx:_ ~channel ~ts ~unfurls () =
+    let req = Slack_j.{ channel; ts; unfurls } in
+    let data = req |> Slack_j.string_of_chat_unfurl_req |> Yojson.Basic.from_string |> Yojson.Basic.pretty_to_string in
+    Printf.printf "will unfurl in #%s\n" (Slack_channel.Ident.project channel);
+    Printf.printf "%s\n" data;
+    Lwt.return @@ Ok ()
+
+  let send_auth_test ~ctx:_ () =
+    Lwt.return
+    @@ Ok
+         ({ url = ""; team = ""; user = ""; team_id = ""; user_id = Slack_user_id.inject "test_slack_user" }
+           : Slack_t.auth_test_res)
+
+  let get_thread_permalink ~ctx:_ (thread : State_t.slack_thread) =
+    Lwt.return_some
+    @@ Printf.sprintf "https://monorobot.slack.com/archives/%s/p%s?thread_ts=%s&cid=%s"
+         (Slack_channel.Ident.project thread.cid)
+         (Stre.replace_all ~str:(Slack_timestamp.project thread.ts) ~sub:"." ~by:"")
+         (Slack_timestamp.project thread.ts)
+         (Slack_channel.Ident.project thread.cid)
+end
 
 module Buildkite : Api.Buildkite = struct
   let get_job_log ~ctx:_ (job : Buildkite_t.job) =
@@ -178,7 +218,8 @@ module Buildkite : Api.Buildkite = struct
     | exception _ -> failwith "Failed to parse Buildkite build url"
     | [| Some _; Some org; Some pipeline; Some build_nr; Some job_nbr |] ->
       let file =
-        clean_forward_slashes (sprintf "organizations/%s/pipelines/%s/builds/%s/jobs/%s/logs" org pipeline build_nr job_nbr)
+        clean_forward_slashes
+          (sprintf "organizations/%s/pipelines/%s/builds/%s/jobs/%s/logs" org pipeline build_nr job_nbr)
       in
       let url = Filename.concat buildkite_cache_dir file in
       with_cache_file url Buildkite_j.job_log_of_string

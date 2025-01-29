@@ -456,11 +456,18 @@ module Action (Github_api : Api.Github) (Slack_api : Api.Slack) (Buildkite_api :
 
   let send_notifications (ctx : Context.t) notifications =
     let notify_reply msg ts reply =
-      let msg = message_of_reply ~msg ~ts reply in
-      match%lwt Slack_api.send_notification ~ctx ~msg with
-      | Ok _ -> Lwt.return_unit
-      | Error e -> action_error e
+      let msg = notification_of_reply ~msg ~ts reply in
+      match msg with
+      | Msg msg ->
+        (match%lwt Slack_api.send_notification ~ctx ~msg with
+        | Ok _ -> Lwt.return_unit
+        | Error e -> action_error e)
+      | File file ->
+        (match%lwt Slack_api.send_file ~ctx ~file with
+        | Ok () -> Lwt.return_unit
+        | Error e -> action_error e)
     in
+
     let notify (msg, handler, replies) =
       match%lwt Slack_api.send_notification ~ctx ~msg with
       | Ok (Some res) ->

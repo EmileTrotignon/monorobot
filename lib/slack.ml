@@ -45,14 +45,40 @@ let markdown_text_attachment ~footer markdown_body =
     };
   ]
 
-type msg_reply = {
-  text : string option;
-  attachments : message_attachment list option;
-  blocks : message_block list option;
-  reply_broadcast : bool;
+type file_req = {
+  name : string;
+  alt_txt : string;
+  content : string;
+  title : string;
+  channel : Slack_t.any_channel option;
+  initial_comment : string option;
+  thread_ts : Slack_t.timestamp option;
 }
 
-let make_reply ?text ?attachments ?blocks ?(reply_broadcast = false) () = { text; attachments; blocks; reply_broadcast }
+type reply =
+  | Msg of {
+      text : string option;
+      attachments : message_attachment list option;
+      blocks : message_block list option;
+      reply_broadcast : bool;
+    }
+  | File of {
+      name : string;
+      alt_txt : string;
+      content : string;
+      title : string;
+      initial_comment : string option;
+    }
+
+type notification_req =
+  | Msg of Slack_t.post_message_req
+  | File of file_req
+
+let make_reply_msg ?text ?attachments ?blocks ?(reply_broadcast = false) () : reply =
+  Msg { text; attachments; blocks; reply_broadcast }
+
+let make_reply_file ~name ~alt_txt ~content ~title ?initial_comment () : reply =
+  File { name; alt_txt; content; title; initial_comment }
 
 let make_message ?username ?text ?attachments ?blocks ?thread ?handler ?(reply_broadcast = false) ?(replies = [])
   ~channel () =
@@ -70,18 +96,23 @@ let make_message ?username ?text ?attachments ?blocks ?thread ?handler ?(reply_b
     handler,
     replies )
 
-let message_of_reply ~(msg : post_message_req) ~ts ({ text; attachments; blocks; reply_broadcast } : msg_reply) =
-  {
-    channel = msg.channel;
-    thread_ts = Some ts;
-    text;
-    attachments;
-    blocks;
-    username = msg.username;
-    unfurl_links = Some false;
-    unfurl_media = None;
-    reply_broadcast;
-  }
+let notification_of_reply ~(msg : post_message_req) ~ts (reply : reply) : notification_req =
+  match reply with
+  | Msg { text; attachments; blocks; reply_broadcast } ->
+    Msg
+      {
+        channel = msg.channel;
+        thread_ts = Some ts;
+        text;
+        attachments;
+        blocks;
+        username = msg.username;
+        unfurl_links = Some false;
+        unfurl_media = None;
+        reply_broadcast;
+      }
+  | File { name; alt_txt; content; title; initial_comment } ->
+    File { name; alt_txt; content; title; channel = Some msg.channel; initial_comment; thread_ts = Some ts }
 
 let github_handle_regex = Re2.create_exn {|\B@([[:alnum:]][[:alnum:]-]{1,38})\b|}
 (* Match GH handles in messages - a GitHub handle has at most 39 chars and no underscore *)
@@ -444,8 +475,11 @@ let generate_status_notification ?slack_user_id ?failed_steps ~job_log (cfg : Co
   let replies =
     match job_log with
     | Some log ->
-      let text = sprintf "Log : ```\n%s\n```" (Text_cleanup.cleanup log) in
-      [ make_reply ~text () ]
+      let name = "log.txt" in
+      let title = "Log" in
+      let alt_txt = "log" in
+      let content = Text_cleanup.cleanup log in
+      [ make_reply_file ~name ~alt_txt ~title ~content () ]
     | None -> []
   in
   make_message ~text:summary ~attachments:[ attachment ]
