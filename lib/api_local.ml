@@ -73,6 +73,8 @@ end
 module Slack_base : Api.Slack = struct
   let lookup_user ?cache:_ ~ctx:_ ~cfg:_ ~email:_ () = Lwt.return @@ Error "undefined for local setup"
   let list_users ?cursor:_ ?limit:_ ~ctx:_ () = Lwt.return @@ Error "undefined for local setup"
+
+  let list_channels ?cache:_  ~ctx:_ () = Lwt.return @@ Error "undefined for local setup"
   let send_notification ~ctx:_ ~msg:_ = Lwt.return @@ Error "undefined for local setup"
 
   let send_file ~ctx:_ ~file:_ = Lwt.return @@ Error "undefined for local setup"

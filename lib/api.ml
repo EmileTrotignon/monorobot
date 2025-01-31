@@ -23,9 +23,12 @@ module type Slack = sig
     lookup_user_res slack_response Lwt.t
 
   val list_users : ?cursor:string -> ?limit:int -> ctx:Context.t -> unit -> list_users_res slack_response Lwt.t
+
+  val list_channels :
+    ?cache:[ `Refresh | `Use ] -> ctx:Context.t -> unit -> (Slack_t.channel_list_res_elt list, string) result Lwt.t
   val send_notification : ctx:Context.t -> msg:post_message_req -> post_message_res option slack_response Lwt.t
 
-  val send_file : ctx:Context.t -> file:Slack.file_req -> (unit,string) Result.t Lwt.t
+  val send_file : ctx:Context.t -> file:Slack.file_req -> (unit, string) Result.t Lwt.t
 
   val send_chat_unfurl :
     ctx:Context.t ->
@@ -41,7 +44,6 @@ module type Slack = sig
 end
 
 module type Buildkite = sig
-
   val get_job_log : ctx:Context.t -> Buildkite_t.job -> (Buildkite_t.job_log, string) result Lwt.t
   val get_build_branch : ctx:Context.t -> Github_t.status_notification -> (Github_t.branch, string) Result.t Lwt.t
 

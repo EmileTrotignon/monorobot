@@ -106,15 +106,18 @@ end
 module Slack : Api.Slack = struct
   let log = Log.from "slack"
 
-  let slack_api_request ?headers ?body meth url read =
+  let slack_api_request ?headers ?body ?(log_res = false) meth url read =
     match%lwt http_request ?headers ?body meth url with
     | Error e -> Lwt.return_error (query_error_msg url e)
     | Ok s ->
-    match Slack_j.slack_response_of_string read s with
-    | res -> Lwt.return res
-    | exception exn -> Lwt.return_error (query_error_msg url (Exn.to_string exn))
+      (match log_res with
+      | true -> log#info "response from %s: %s" url (Yojson.Basic.prettify s)
+      | false -> ());
+      (match Slack_j.slack_response_of_string read s with
+      | res -> Lwt.return res
+      | exception exn -> Lwt.return_error (query_error_msg url (Exn.to_string exn)))
 
-  let request_token_auth ~name ?headers ?body ~ctx meth path read =
+  let request_token_auth ~name ?headers ?body ?(log_res = false) ~ctx meth path read =
     log#info "%s: starting request" name;
     let secrets = Context.get_secrets_exn ctx in
     match secrets.slack_access_token with
@@ -122,58 +125,13 @@ module Slack : Api.Slack = struct
     | Some access_token ->
       let headers = bearer_token_header access_token :: Option.default [] headers in
       let url = sprintf "https://slack.com/api/%s" path in
-      (match%lwt slack_api_request ?body ~headers meth url read with
+      (match%lwt slack_api_request ?body ~log_res ~headers meth url read with
       | Ok res -> Lwt.return @@ Ok res
       | Error e -> Lwt.return @@ fmt_error "%s: failure : %s" name e)
 
   let read_unit s l =
     (* must read whole response to update lexer state *)
     ignore (Slack_j.read_ok_res s l)
-
-  let get_upload_URL_external ~ctx ~filename ~alt_txt =
-    (* Check if config holds the Github to Slack email mapping  *)
-    let url_args = Web.make_url_args [ "filename", filename; "alt_txt", alt_txt ] in
-    Lwt_result.bind
-      (request_token_auth ~name:"lookup user by email" ~ctx `GET
-         (sprintf "files.getUploadURLExternal?%s" url_args)
-         Slack_j.read_upload_url_res)
-      (fun { Slack_t.ok; upload_url; file_id; error } ->
-        if ok then Lwt.return_ok (Option.get upload_url, Option.get file_id) else Lwt.return_error (Option.get error))
-
-  let post_file_content ~ctx ~upload_url ~content =
-    log#info "post_file_content: starting file upload to %s" upload_url;
-    let secrets = Context.get_secrets_exn ctx in
-    match secrets.slack_access_token with
-    | None -> Lwt.return @@ fmt_error "post_file_content: failed to retrieve Slack access token"
-    | Some access_token ->
-      let headers = [ bearer_token_header access_token ] in
-      let body = `Raw ("text/plain", content) in
-      (match%lwt http_request ~headers ~body `POST upload_url with
-      | Error e -> Lwt.return_error (query_error_msg upload_url e)
-      | Ok _ ->
-        log#info "post_file_content: upload file to %s successful" upload_url;
-        Lwt.return_ok ())
-
-  let complete_upload_external ~(ctx : Context.t) ?channel_id ?thread_ts ~file_id ~title ?initial_comment () =
-    let files = [ ({ id = file_id; title } : Slack_t.complete_upload_external_file) ] in
-    let req = { Slack_t.files; channel_id; thread_ts; channels = None; initial_comment } in
-    let body = `Raw ("application/json", Slack_j.string_of_complete_upload_external_req req) in
-    Lwt_result.bind
-      (request_token_auth ~name:"lookup user by email" ~ctx `POST ~body
-         (sprintf "files.completeUploadExternal")
-         Slack_j.read_complete_upload_external_res)
-      (fun ({ ok; error } : Slack_t.complete_upload_external_res) ->
-        if ok then Lwt.return_ok () else Lwt.return_error (Option.get error))
-
-  let send_file ~(ctx : Context.t) ~(file : Slack.file_req) =
-    let { Slack.name; alt_txt; content; title; channel; initial_comment; thread_ts } = file in
-    let channel_id = channel |> Option.map Slack_channel.Any.project |> Option.map Slack_channel.Ident.inject in
-    match%lwt get_upload_URL_external ~ctx ~filename:name ~alt_txt with
-    | Error _ as e -> Lwt.return @@ e
-    | Ok (upload_url, file_id) ->
-      (match%lwt post_file_content ~ctx ~upload_url ~content with
-      | Error _ as e -> Lwt.return e
-      | Ok () -> complete_upload_external ~ctx ?channel_id ?thread_ts ~file_id ~title ?initial_comment ())
 
   let lookup_user_cache = Hashtbl.create 50
 
@@ -206,6 +164,85 @@ module Slack : Api.Slack = struct
     let url_args = Web.make_url_args @@ List.filter_map id [ cursor_option; limit_option ] in
     request_token_auth ~name:"list users" ~ctx `GET (sprintf "users.list?%s" url_args) Slack_j.read_list_users_res
 
+  let channel_list = ref None
+
+  let list_channels ?cursor ?exclude_archived ?team_id ?limit ~(ctx : Context.t) () =
+    let cursor_option = Option.map (fun c -> "cursor", c) cursor in
+    let limit_option = Option.map (fun l -> "limit", Int.to_string l) limit in
+    let exclude_archived_option = Option.map (fun l -> "exclude_archived", Bool.to_string l) exclude_archived in
+    let team_id_option = Option.map (fun l -> "team_id", Bool.to_string l) team_id in
+    let url_args =
+      Web.make_url_args @@ List.filter_map id [ cursor_option; limit_option; exclude_archived_option; team_id_option ]
+    in
+    Lwt_result.map
+      (fun Slack_t.{ channels } -> channels)
+      (request_token_auth ~name:"list channels" ~ctx `GET
+         (sprintf "conversations.list?%s" url_args)
+         Slack_j.read_channel_list_res)
+
+  let list_channels ?(cache : [ `Use | `Refresh ] = `Use) ~ctx () =
+    match cache with
+    | `Refresh -> list_channels ~ctx ()
+    | `Use ->
+    match !channel_list with
+    | Some channels -> Lwt.return_ok channels
+    | None -> list_channels ~ctx ()
+
+  let channel_id_of_name ~(ctx : Context.t) (name : string) =
+    let%lwt channels = list_channels ~ctx () in
+    match channels with
+    | Error _ as e -> Lwt.return e
+    | Ok channels ->
+    match
+      List.find_opt
+        (function
+          | ({ name = Some name'; _ } : Slack_t.channel_list_res_elt) when name = name' -> true
+          | _ -> false)
+        channels
+    with
+    | None -> Lwt.return_error (sprintf "channel_id_of_name: channel with name %S not found" name)
+    | Some { id; name = _ } ->
+      log#info "channel_id_of_name: found channel %S has id %S" name (Slack_channel.Ident.project id);
+      Lwt.return_ok id
+
+  let channel_id_of_name ~ctx channel = channel |> Slack_channel.Any.project |> channel_id_of_name ~ctx
+
+  let channel_id_of_name_opt ~ctx channel =
+    match channel with
+    | None -> Lwt.return_ok None
+    | Some channel ->
+      (match%lwt channel_id_of_name ~ctx channel with
+      | Error _ as e -> Lwt.return e
+      | Ok channel_id -> Lwt.return_ok (Some channel_id))
+
+  module ChannelTbl = Hashtbl.Make (struct
+    include Slack_channel.Ident
+    let equal = Slack_channel.equal
+    let hash = Slack_channel.hash
+  end)
+
+  let joined_channels : unit ChannelTbl.t = ChannelTbl.create 50
+
+  let join_channel ~(ctx : Context.t) (channel : Slack_channel.Ident.t) =
+    let data = Slack_j.(string_of_join_channel_req { channel }) in
+    let body = `Raw ("application/json; charset=utf-8", data) in
+    request_token_auth ~name:"join channel" ~ctx `POST ~body "conversations.join" Slack_j.read_ok_res
+
+  let join_channel ~ctx channel =
+    match ChannelTbl.find_opt joined_channels channel with
+    | Some () -> Lwt.return_ok ()
+    | None ->
+      (match%lwt join_channel ~ctx channel with
+      | Error _ as e -> Lwt.return e
+      | Ok _ ->
+        ChannelTbl.add joined_channels channel ();
+        Lwt.return_ok ())
+
+  let join_channel_opt ~ctx channel =
+    match channel with
+    | None -> Lwt.return_ok ()
+    | Some channel -> join_channel ~ctx channel
+
   (** [send_notification ctx msg] notifies [msg.channel] with the payload [msg];
       uses web API with access token if available, or with webhook otherwise *)
   let send_notification ~(ctx : Context.t) ~(msg : Slack_t.post_message_req) =
@@ -227,7 +264,7 @@ module Slack : Api.Slack = struct
       @@ sprintf "no token or webhook configured to notify channel %s" (Slack_channel.Any.project msg.channel)
     | Some url ->
       let data = Slack_j.string_of_post_message_req msg in
-      let body = `Raw ("application/json", data) in
+      let body = `Raw ("application/json; charset=utf-8", data) in
       log#info "data: %s" data;
       if webhook_mode then begin
         match%lwt http_request ~body ~headers `POST url with
@@ -246,7 +283,7 @@ module Slack : Api.Slack = struct
     let req = Slack_j.{ channel; ts; unfurls } in
     let data = Slack_j.string_of_chat_unfurl_req req in
     request_token_auth ~name:"unfurl slack links"
-      ~body:(`Raw ("application/json", data))
+      ~body:(`Raw ("application/json; charset=utf-8", data))
       ~ctx `POST "chat.unfurl" read_unit
 
   let send_auth_test ~(ctx : Context.t) () =
@@ -270,6 +307,86 @@ module Slack : Api.Slack = struct
         (Option.default "" res.error);
       Lwt.return_none
     | Ok ({ permalink; _ } : Slack_t.permalink_res) -> Lwt.return_some permalink
+
+  let get_upload_URL_external ~ctx ~filename ~alt_txt ~size =
+    (* Check if config holds the Github to Slack email mapping  *)
+    let url_args = Web.make_url_args [ "filename", filename; "alt_txt", alt_txt; "length", string_of_int size ] in
+    request_token_auth ~name:"get_upload_URL_external" ~log_res:true ~ctx `GET
+      (sprintf "files.getUploadURLExternal?%s" url_args)
+      Slack_j.read_upload_url_res
+
+  let post_file_content ~ctx ~upload_url ~content =
+    log#info "post_file_content: starting file upload to %s" upload_url;
+    let secrets = Context.get_secrets_exn ctx in
+    match secrets.slack_access_token with
+    | None -> Lwt.return @@ fmt_error "post_file_content: failed to retrieve Slack access token"
+    | Some access_token ->
+      let headers = [ bearer_token_header access_token ] in
+      let body = `Raw ("text/plain", content) in
+      (match%lwt http_request ~headers ~body `POST upload_url with
+      | Error e -> Lwt.return_error (query_error_msg upload_url e)
+      | Ok str ->
+        log#info "post_file_content: upload file to %s successful:\n%s" upload_url str;
+        Lwt.return_ok ())
+
+  let complete_upload_external ~(ctx : Context.t) ?channel ?thread_ts ~file_id ~title ?initial_comment () =
+    log#info "send file: complete_upload_external to channel: %S"
+      (match channel with
+      | None -> "None"
+      | Some c -> Slack_channel.Any.project c);
+    match%lwt channel_id_of_name_opt ~ctx channel with
+    | Error _ as e -> Lwt.return e
+    | Ok channel_id ->
+      (match%lwt join_channel_opt ~ctx channel_id with
+      | Error _ as e -> Lwt.return e
+      | Ok () ->
+        let files = [ ({ id = file_id; title } : Slack_t.complete_upload_external_file) ] in
+        let thread_ts =
+          ignore thread_ts;
+          None
+        in
+        let req =
+          {
+            Slack_t.files;
+            channel_id;
+            channels = Option.map Slack_channel.Ident.project channel_id;
+            thread_ts;
+            initial_comment;
+          }
+        in
+        let data = Slack_j.string_of_complete_upload_external_req req in
+        log#info "data: %s" data;
+        let body = `Raw ("application/json; charset=utf-8", data) in
+        Lwt_result.bind
+          (request_token_auth ~name:"complete_upload_external" ~log_res:true ~ctx `POST ~body
+             (sprintf "files.completeUploadExternal")
+             Slack_j.read_complete_upload_external_res)
+          (fun res ->
+            let text =
+              String.concat "\n"
+                (List.map
+                   (fun ({ url_private; url_private_download; permalink; permalink_public } :
+                          Slack_t.complete_upload_external_file_res) ->
+                     sprintf "private: %s private_download: %s permalink: %s, permalink_public: %s" url_private
+                       url_private_download permalink permalink_public)
+                   res.files)
+            in
+            let msg, _, _ = Slack.make_message ~text ~channel:(Option.get channel) () in
+            Lwt_result.map (fun _ -> ()) (send_notification ~ctx ~msg)))
+
+  let send_file ~(ctx : Context.t) ~(file : Slack.file_req) =
+    log#info "send file: starting to send file %S" file.title;
+    let { Slack.name; alt_txt; content; title; channel; initial_comment; thread_ts } = file in
+    match%lwt get_upload_URL_external ~ctx ~filename:name ~alt_txt ~size:(String.length content) with
+    | Error _ as e ->
+      log#info "send file: failed to get upload URL for file %S" file.title;
+      Lwt.return @@ e
+    | Ok { Slack_t.upload_url; file_id } ->
+      (match%lwt post_file_content ~ctx ~upload_url ~content with
+      | Error _ as e ->
+        log#info "send file: failed to post file content for file %S" file.title;
+        Lwt.return e
+      | Ok () -> complete_upload_external ~ctx ?channel ?thread_ts ~file_id ~title ?initial_comment ())
 end
 
 module Buildkite : Api.Buildkite = struct

@@ -168,25 +168,44 @@ type 'ok slack_response = ('ok, string) http_response
 
 
 type upload_url_res = {
-  ok: bool;
-  ?upload_url: string nullable;
-  ?file_id: string nullable;
-  ?error: string nullable;
+  upload_url: string;
+  file_id: string;
 }
 
-type complete_upload_external_file =
-{id:string; title:string}
+type complete_upload_external_file = {
+  id:string;
+  title:string;
+}
 
 type complete_upload_external_req = {
   files: complete_upload_external_file list;
   ?channel_id: channel_id nullable;
-  ?channels: channel_id list nullable;
+  ?channels: string nullable;
   ?thread_ts: timestamp nullable;
   ?initial_comment: string nullable;
 }
 
-type complete_upload_external_res =
-{
-  ok:bool;
-  ?error: string nullable;
+type complete_upload_external_file_res = {
+  url_private: string;
+  url_private_download: string;
+  permalink: string;
+  permalink_public: string;
 }
+
+type complete_upload_external_res = {
+  files: complete_upload_external_file_res list;
+}
+
+type channel_list_res_elt = {
+  id: channel_id;
+  ?name: string nullable;
+}
+
+type channel_list_res = {
+  channels: channel_list_res_elt list;
+}
+
+type join_channel_req = {
+  channel: channel_id;
+}
+

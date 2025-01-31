@@ -479,7 +479,8 @@ let generate_status_notification ?slack_user_id ?failed_steps ~job_log (cfg : Co
       let title = "Log" in
       let alt_txt = "log" in
       let content = Text_cleanup.cleanup log in
-      [ make_reply_file ~name ~alt_txt ~title ~content () ]
+      let initial_comment = "This is a log" in
+      [ make_reply_file ~name ~alt_txt ~title ~content ~initial_comment () ]
     | None -> []
   in
   make_message ~text:summary ~attachments:[ attachment ]
