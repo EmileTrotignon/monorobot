@@ -129,6 +129,18 @@ module Slack : Api.Slack = struct
       | Ok res -> Lwt.return @@ Ok res
       | Error e -> Lwt.return @@ fmt_error "%s: failure : %s" name e)
 
+  let request_token_raw ~name ?(add_prefix = true) ?headers ?body ~ctx meth path =
+    log#info "%s: starting request" name;
+    let secrets = Context.get_secrets_exn ctx in
+    match secrets.slack_access_token with
+    | None -> Lwt.return @@ fmt_error "%s: failed to retrieve Slack access token" name
+    | Some access_token ->
+      let headers = bearer_token_header access_token :: Option.default [] headers in
+      let url = if add_prefix then sprintf "https://slack.com/api/%s" path else path in
+      (match%lwt http_request ?body ~headers meth url with
+      | Ok res -> Lwt.return @@ Ok res
+      | Error e -> Lwt.return @@ fmt_error "%s: failure : %s" name e)
+
   let read_unit s l =
     (* must read whole response to update lexer state *)
     ignore (Slack_j.read_ok_res s l)
@@ -315,19 +327,23 @@ module Slack : Api.Slack = struct
       (sprintf "files.getUploadURLExternal?%s" url_args)
       Slack_j.read_upload_url_res
 
-  let post_file_content ~ctx ~upload_url ~content =
+  let post_file_content ~ctx ~upload_url ~filename:_ ~content =
+    (* Out_channel.with_open_bin "/tmp/joblog" (fun oc -> output_string oc content); *)
+    (*let upload_url =
+      ignore upload_url;
+      "central-sadly-hawk.ngrok-free.app/upload"
+    in*)
     log#info "post_file_content: starting file upload to %s" upload_url;
-    let secrets = Context.get_secrets_exn ctx in
-    match secrets.slack_access_token with
-    | None -> Lwt.return @@ fmt_error "post_file_content: failed to retrieve Slack access token"
-    | Some access_token ->
-      let headers = [ bearer_token_header access_token ] in
-      let body = `Raw ("text/plain", content) in
-      (match%lwt http_request ~headers ~body `POST upload_url with
-      | Error e -> Lwt.return_error (query_error_msg upload_url e)
-      | Ok str ->
-        log#info "post_file_content: upload file to %s successful:\n%s" upload_url str;
-        Lwt.return_ok ())
+    (* let headers = [ sprintf {|Content-Disposition: attachment; filename="%s"|} filename ] in *)
+    let body = `Raw ("application/octet-stream", content) in
+    (* let body = `Form [filename, content] in *)
+    match%lwt
+      request_token_raw ~name:"post_file_content" (*~headers*) ~add_prefix:false ~ctx ~body `POST upload_url
+    with
+    | Error e -> Lwt.return_error (query_error_msg upload_url e)
+    | Ok str ->
+      log#info "post_file_content: upload file successful: %S" str;
+      Lwt.return_ok ()
 
   let complete_upload_external ~(ctx : Context.t) ?channel ?thread_ts ~file_id ~title ?initial_comment () =
     log#info "send file: complete_upload_external to channel: %S"
@@ -349,7 +365,7 @@ module Slack : Api.Slack = struct
           {
             Slack_t.files;
             channel_id;
-            channels = Option.map Slack_channel.Ident.project channel_id;
+            channels = None;
             thread_ts;
             initial_comment;
           }
@@ -377,12 +393,16 @@ module Slack : Api.Slack = struct
   let send_file ~(ctx : Context.t) ~(file : Slack.file_req) =
     log#info "send file: starting to send file %S" file.title;
     let { Slack.name; alt_txt; content; title; channel; initial_comment; thread_ts } = file in
+    (*let content =
+      ignore content;
+      In_channel.with_open_bin "/tmp/joblog" (fun ic -> In_channel.input_all ic)
+    in*)
     match%lwt get_upload_URL_external ~ctx ~filename:name ~alt_txt ~size:(String.length content) with
     | Error _ as e ->
       log#info "send file: failed to get upload URL for file %S" file.title;
       Lwt.return @@ e
     | Ok { Slack_t.upload_url; file_id } ->
-      (match%lwt post_file_content ~ctx ~upload_url ~content with
+      (match%lwt post_file_content ~ctx ~upload_url ~filename:name ~content with
       | Error _ as e ->
         log#info "send file: failed to post file content for file %S" file.title;
         Lwt.return e

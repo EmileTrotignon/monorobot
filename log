@@ -1,0 +1,287 @@
+[2025-02-05T17:41:13.8363] 490820: [monorobot:info] monorobot starting
+[2025-02-05T17:41:13.8365] 490820: [context:info] loading saved state from file state.json
+[2025-02-05T17:41:13.8378] 490820: [httpev:warn] monorobot listen TCP 127.0.0.1:8080 failed : exn Unix_error bind() Address already in use
+[2025-02-05T17:41:13.8378] 490820: [httpev:warn]     Raised by primitive operation at Devkit_core__Httpev.Tcp.listen in file "httpev.ml", line 564, characters 4-16
+[2025-02-05T17:41:13.8378] 490820: [httpev:warn]     
+monorobot: internal error, uncaught exception:
+           Unix.Unix_error(Unix.EADDRINUSE, "bind", "")
+           Raised at Devkit_core__Httpev.Tcp.listen in file "httpev.ml", line 568, characters 92-101
+           Called from Devkit_core__Httpev.start_listen in file "httpev.ml" (inlined), line 662, characters 2-100
+           Called from Devkit_core__Httpev.setup_lwt in file "httpev.ml", line 1125, characters 58-77
+           Called from Dune__exe__Request_handler.run in file "src/request_handler.ml", line 15, characters 4-1023
+           Called from Dune__exe__Monorobot.http_server_action in file "src/monorobot.ml", line 28, characters 18-54
+           Called from Cmdliner_term.app.(fun) in file "cmdliner_term.ml", line 24, characters 19-24
+           Called from Cmdliner_eval.run_parser in file "cmdliner_eval.ml", line 35, characters 37-44
+[2025-02-05T17:41:34.6431] 481205: [signal:info] Received signal -6 (exit)...
+[2025-02-05T17:41:34.6432] 481205: [httpev:info] canceling accept loop
+[2025-02-05T17:41:34.6432] 481205: [httpev:info] monorobot 127.0.0.1:8080 exit
+[2025-02-05T17:41:34.6432] 481205: [signal:info] Signal handler done.
+[2025-02-05T17:41:35.5476] 490933: [monorobot:info] monorobot starting
+[2025-02-05T17:41:35.5477] 490933: [context:info] loading saved state from file state.json
+[2025-02-05T17:41:35.5490] 490933: [httpev:info] monorobot listen TCP 127.0.0.1:8080
+[2025-02-05T17:41:35.5490] 490933: [action:info] updating github to slack username mapping
+[2025-02-05T17:41:35.5491] 490933: [slack:info] list users: starting request
+[2025-02-05T17:41:35.5491] 490933: [lib:info] GET #1 https://slack.com/api/users.list? 
+[2025-02-05T17:41:35.7239] 490933: [lib:info] GET #1 175ms ⇓977B ⇑0B 3.68.124.168 HTTP 200 https://slack.com/api/users.list
+[2025-02-05T17:41:45.7102] 490933: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=success, context=buildkite/monorobot-test-pipeline/build, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/109#0194d734-0e68-4fd2-8903-51e20f9c7dbd, branches=[master]
+[2025-02-05T17:41:45.7104] 490933: [lib:info] GET #2 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json 
+[2025-02-05T17:41:45.9153] 490933: [lib:info] GET #2 205ms ⇓791B ⇑0B 140.82.121.6 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json
+[2025-02-05T17:41:45.9156] 490933: [context:info] using prefix routing:
+[2025-02-05T17:41:45.9156] 490933: [context:info] using label routing:
+[2025-02-05T17:41:45.9156] 490933: [context:info] signature checking disabled
+[2025-02-05T17:41:46.4411] 490933: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=pending, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/109#0194d734-0e6d-4881-8ee1-db026bdff074, branches=[master]
+[2025-02-05T17:41:49.1464] 490933: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/109, branches=[master]
+[2025-02-05T17:41:49.1468] 490933: [lib:info] GET #3 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860 
+[2025-02-05T17:41:49.2183] 490933: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/109#0194d734-0e6d-4881-8ee1-db026bdff074, branches=[master]
+[2025-02-05T17:41:49.2238] 490933: [buildkite:info] get build details: starting request
+[2025-02-05T17:41:49.2238] 490933: [lib:info] GET #4 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109 
+[2025-02-05T17:41:49.3277] 490933: [lib:info] GET #3 181ms ⇓1012B ⇑0B 140.82.121.6 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860
+[2025-02-05T17:41:49.3280] 490933: [slack:info] lookup user by email: starting request
+[2025-02-05T17:41:49.3280] 490933: [lib:info] GET #5 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com 
+[2025-02-05T17:41:49.4598] 490933: [lib:info] GET #5 132ms ⇓578B ⇑0B 3.68.124.168 HTTP 200 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com
+[2025-02-05T17:41:49.4600] 490933: [buildkite:info] get build details: starting request
+[2025-02-05T17:41:49.4600] 490933: [lib:info] GET #6 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109 
+[2025-02-05T17:41:49.6202] 490933: [lib:info] GET #4 396ms ⇓2KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109
+[2025-02-05T17:41:49.6205] 490933: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:41:49.6205] 490933: [lib:info] GET #7 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109/jobs/0194d734-0e6d-4881-8ee1-db026bdff074/log 
+[2025-02-05T17:41:49.7708] 490933: [lib:info] GET #6 311ms ⇓2KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109
+[2025-02-05T17:41:49.7710] 490933: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:41:49.7710] 490933: [lib:info] GET #8 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109/jobs/0194d734-0e6d-4881-8ee1-db026bdff074/log 
+[2025-02-05T17:41:49.9782] 490933: [lib:info] GET #7 358ms ⇓1KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109/jobs/0194d734-0e6d-4881-8ee1-db026bdff074/log
+[2025-02-05T17:41:50.3456] 490933: [lib:info] GET #8 575ms ⇓1KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/109/jobs/0194d734-0e6d-4881-8ee1-db026bdff074/log
+[2025-02-05T17:41:50.3459] 490933: [slack:info] sending to a
+[2025-02-05T17:41:50.3459] 490933: [slack:info] data: {"channel":"a","text":"<https://buildkite.com/monorobot-test-org/monorobot-test-pipeline|[buildkite/monorobot-test-pipeline]>: Build <https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/109|#​109> failed (6 seconds) for \"test change\"","attachments":[{"fallback":null,"mrkdwn_in":["fields","text"],"color":"danger","text":"*Commit*: `<https://github.com/EmileTrotignon/monorobot_test/commit/404671053ebacf0245dc5b60566eb85e19465860|40467105>` <@U080QC0B951>\n*Branch*: master"}],"unfurl_links":false}
+[2025-02-05T17:41:50.3460] 490933: [lib:info] POST #9 https://slack.com/api/chat.postMessage application/json; charset=utf-8 "{\"channel\":\"a\",\"text\":\"<https://buildkite.co..[+475 bytes]..lse}"
+[2025-02-05T17:41:50.5461] 490933: [lib:info] POST #9 200ms ⇓617B ⇑523B 3.68.124.168 HTTP 200 https://slack.com/api/chat.postMessage
+[2025-02-05T17:41:50.5463] 490933: [slack:info] send file: starting to send file "Log"
+[2025-02-05T17:41:50.5463] 490933: [slack:info] get_upload_URL_external: starting request
+[2025-02-05T17:41:50.5463] 490933: [lib:info] GET #10 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167 
+[2025-02-05T17:41:50.6847] 490933: [lib:info] GET #10 138ms ⇓204B ⇑0B 3.68.124.168 HTTP 200 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167
+[2025-02-05T17:41:50.6848] 490933: [slack:info] response from https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167: {
+[2025-02-05T17:41:50.6848] 490933: [slack:info]   "ok": true,
+[2025-02-05T17:41:50.6849] 490933: [slack:info]   "upload_url": "https://files.slack.com/upload/v1/CwABAAAAXAoAAaaKDwM74I8WCgACGCFgwGb5dXAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QkhDRVBKNzkACgAEAAAAAAAACHcACwACAAAAFFFD46dv1dKsjOfmdvEhpC6igzA2AA",
+[2025-02-05T17:41:50.6849] 490933: [slack:info]   "file_id": "F08BHCEPJ79"
+[2025-02-05T17:41:50.6849] 490933: [slack:info] }
+[2025-02-05T17:41:50.6849] 490933: [slack:info] post_file_content: starting file upload to central-sadly-hawk.ngrok-free.app/upload
+[2025-02-05T17:41:50.6849] 490933: [slack:info] post_file_content: starting request
+[2025-02-05T17:41:50.6849] 490933: [lib:info] POST #11 central-sadly-hawk.ngrok-free.app/upload application/octet-stream "~~~ Preparing working directory\r\n$ cd /home/..[+2119 bytes].. 1\r\n"
+[2025-02-05T17:41:50.8163] 490933: [request_handler:error] unknown path : #5 127.0.0.1 time 0.0003 (recv 0.0003) POST central-sadly-hawk.ngrok-free.app/upload "monorobot" ""
+[2025-02-05T17:41:50.8273] 490933: [lib:info] POST #11 142ms ⇓9B ⇑2KB 3.125.102.39 HTTP 404 https://central-sadly-hawk.ngrok-free.app/upload after 1 redirects
+[2025-02-05T17:41:50.8273] 490933: [slack:info] send file: failed to post file content for file "Log"
+[2025-02-05T17:41:50.8274] 490933: [action:error] action error error while querying central-sadly-hawk.ngrok-free.app/upload: post_file_content: failure : http 404: not found
+[2025-02-05T17:42:13.8558] 490933: [signal:info] Received signal -6 (exit)...
+[2025-02-05T17:42:13.8560] 490933: [httpev:info] canceling accept loop
+[2025-02-05T17:42:13.8560] 490933: [httpev:info] monorobot 127.0.0.1:8080 exit
+[2025-02-05T17:42:13.8560] 490933: [signal:info] Signal handler done.
+[2025-02-05T17:44:34.2295] 491735: [monorobot:info] monorobot starting
+[2025-02-05T17:44:34.2297] 491735: [context:info] loading saved state from file state.json
+[2025-02-05T17:44:34.2310] 491735: [httpev:info] monorobot listen TCP 127.0.0.1:8080
+[2025-02-05T17:44:34.2310] 491735: [action:info] updating github to slack username mapping
+[2025-02-05T17:44:34.2310] 491735: [slack:info] list users: starting request
+[2025-02-05T17:44:34.2310] 491735: [lib:info] GET #1 https://slack.com/api/users.list? 
+[2025-02-05T17:44:34.4110] 491735: [lib:info] GET #1 180ms ⇓977B ⇑0B 3.68.170.153 HTTP 200 https://slack.com/api/users.list
+[2025-02-05T17:44:46.1621] 491735: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=success, context=buildkite/monorobot-test-pipeline/build, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/110#0194d736-c7ed-4ef0-aed0-89c2ed55fe65, branches=[master]
+[2025-02-05T17:44:46.1623] 491735: [lib:info] GET #2 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json 
+[2025-02-05T17:44:46.3880] 491735: [lib:info] GET #2 226ms ⇓791B ⇑0B 140.82.121.5 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json
+[2025-02-05T17:44:46.3882] 491735: [context:info] using prefix routing:
+[2025-02-05T17:44:46.3883] 491735: [context:info] using label routing:
+[2025-02-05T17:44:46.3883] 491735: [context:info] signature checking disabled
+[2025-02-05T17:44:47.1105] 491735: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=pending, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/110#0194d736-c7f1-4127-8f94-2fc3c953c5c6, branches=[master]
+[2025-02-05T17:44:50.2434] 491735: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/110#0194d736-c7f1-4127-8f94-2fc3c953c5c6, branches=[master]
+[2025-02-05T17:44:50.2440] 491735: [buildkite:info] get build details: starting request
+[2025-02-05T17:44:50.2440] 491735: [lib:info] GET #3 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110 
+[2025-02-05T17:44:50.6412] 491735: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/110, branches=[master]
+[2025-02-05T17:44:50.6414] 491735: [lib:info] GET #4 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860 
+[2025-02-05T17:44:50.6704] 491735: [lib:info] GET #3 426ms ⇓2KB ⇑0B 18.239.18.9 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110
+[2025-02-05T17:44:50.6706] 491735: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:44:50.6706] 491735: [lib:info] GET #5 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110/jobs/0194d736-c7f1-4127-8f94-2fc3c953c5c6/log 
+[2025-02-05T17:44:50.8079] 491735: [lib:info] GET #4 166ms ⇓1012B ⇑0B 140.82.121.5 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860
+[2025-02-05T17:44:50.8081] 491735: [slack:info] lookup user by email: starting request
+[2025-02-05T17:44:50.8081] 491735: [lib:info] GET #6 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com 
+[2025-02-05T17:44:50.9361] 491735: [lib:info] GET #6 128ms ⇓578B ⇑0B 3.68.170.153 HTTP 200 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com
+[2025-02-05T17:44:50.9362] 491735: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:44:50.9362] 491735: [lib:info] GET #7 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110/jobs/0194d736-c7f1-4127-8f94-2fc3c953c5c6/log 
+[2025-02-05T17:44:50.9579] 491735: [lib:info] GET #5 287ms ⇓1KB ⇑0B 18.239.18.9 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110/jobs/0194d736-c7f1-4127-8f94-2fc3c953c5c6/log
+[2025-02-05T17:44:51.2443] 491735: [lib:info] GET #7 308ms ⇓1KB ⇑0B 18.239.18.9 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/110/jobs/0194d736-c7f1-4127-8f94-2fc3c953c5c6/log
+[2025-02-05T17:44:51.2446] 491735: [slack:info] sending to a
+[2025-02-05T17:44:51.2446] 491735: [slack:info] data: {"channel":"a","text":"<https://buildkite.com/monorobot-test-org/monorobot-test-pipeline|[buildkite/monorobot-test-pipeline]>: Build <https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/110|#​110> failed (8 seconds) for \"test change\"","attachments":[{"fallback":null,"mrkdwn_in":["fields","text"],"color":"danger","text":"*Commit*: `<https://github.com/EmileTrotignon/monorobot_test/commit/404671053ebacf0245dc5b60566eb85e19465860|40467105>` <@U080QC0B951>\n*Branch*: master"}],"unfurl_links":false}
+[2025-02-05T17:44:51.2446] 491735: [lib:info] POST #8 https://slack.com/api/chat.postMessage application/json; charset=utf-8 "{\"channel\":\"a\",\"text\":\"<https://buildkite.co..[+475 bytes]..lse}"
+[2025-02-05T17:44:51.4381] 491735: [lib:info] POST #8 194ms ⇓614B ⇑523B 3.68.170.153 HTTP 200 https://slack.com/api/chat.postMessage
+[2025-02-05T17:44:51.4382] 491735: [slack:info] send file: starting to send file "Log"
+[2025-02-05T17:44:51.4384] 491735: [slack:info] get_upload_URL_external: starting request
+[2025-02-05T17:44:51.4384] 491735: [lib:info] GET #9 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167 
+[2025-02-05T17:44:51.6422] 491735: [lib:info] GET #9 204ms ⇓205B ⇑0B 3.68.170.153 HTTP 200 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167
+[2025-02-05T17:44:51.6423] 491735: [slack:info] response from https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167: {
+[2025-02-05T17:44:51.6423] 491735: [slack:info]   "ok": true,
+[2025-02-05T17:44:51.6423] 491735: [slack:info]   "upload_url": "https://files.slack.com/upload/v1/CwABAAAAXAoAAfKTz8iAjB9oCgACGCFg6oTweQAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlY0NEpUMzcACgAEAAAAAAAACHcACwACAAAAFMgoP8anKmUa88a84-RcJajceQwxAA",
+[2025-02-05T17:44:51.6424] 491735: [slack:info]   "file_id": "F08BV44JT37"
+[2025-02-05T17:44:51.6424] 491735: [slack:info] }
+[2025-02-05T17:44:51.6424] 491735: [slack:info] post_file_content: starting file upload to https://files.slack.com/upload/v1/CwABAAAAXAoAAfKTz8iAjB9oCgACGCFg6oTweQAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlY0NEpUMzcACgAEAAAAAAAACHcACwACAAAAFMgoP8anKmUa88a84-RcJajceQwxAA
+[2025-02-05T17:44:51.6424] 491735: [slack:info] post_file_content: starting request
+[2025-02-05T17:44:51.6424] 491735: [lib:info] POST #10 https://files.slack.com/upload/v1/CwABAAAAXAoAAfKTz8iAjB9oCgACGCFg6oTweQAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlY0NEpUMzcACgAEAAAAAAAACHcACwACAAAAFMgoP8anKmUa88a84-RcJajceQwxAA application/octet-stream "~~~ Preparing working directory\r\n$ cd /home/..[+2119 bytes].. 1\r\n"
+[2025-02-05T17:44:51.9799] 491735: [lib:info] POST #10 337ms ⇓9B ⇑2KB 18.65.39.96 HTTP 200 https://files.slack.com/upload/v1/CwABAAAAXAoAAfKTz8iAjB9oCgACGCFg6oTweQAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlY0NEpUMzcACgAEAAAAAAAACHcACwACAAAAFMgoP8anKmUa88a84-RcJajceQwxAA
+[2025-02-05T17:44:51.9800] 491735: [slack:info] post_file_content: upload file successful: "OK - 2167"
+[2025-02-05T17:44:51.9800] 491735: [slack:info] send file: complete_upload_external to channel: "a"
+[2025-02-05T17:44:51.9800] 491735: [slack:info] list channels: starting request
+[2025-02-05T17:44:51.9800] 491735: [lib:info] GET #11 https://slack.com/api/conversations.list? 
+[2025-02-05T17:44:52.1539] 491735: [lib:info] GET #11 174ms ⇓871B ⇑0B 3.68.170.153 HTTP 200 https://slack.com/api/conversations.list
+[2025-02-05T17:44:52.1542] 491735: [slack:info] channel_id_of_name: found channel "a" has id "C080HS0VBUN"
+[2025-02-05T17:44:52.1542] 491735: [slack:info] join channel: starting request
+[2025-02-05T17:44:52.1542] 491735: [lib:info] POST #12 https://slack.com/api/conversations.join application/json; charset=utf-8 "{\"channel\":\"C080HS0VBUN\"}"
+[2025-02-05T17:44:52.3643] 491735: [lib:info] POST #12 210ms ⇓479B ⇑25B 3.68.170.153 HTTP 200 https://slack.com/api/conversations.join
+[2025-02-05T17:44:52.3643] 491735: [slack:info] data: {"files":[{"id":"F08BV44JT37","title":"Log"}],"channel_id":"C080HS0VBUN","channels":"C080HS0VBUN","initial_comment":"This is a log"}
+[2025-02-05T17:44:52.3644] 491735: [slack:info] complete_upload_external: starting request
+[2025-02-05T17:44:52.3644] 491735: [lib:info] POST #13 https://slack.com/api/files.completeUploadExternal application/json; charset=utf-8 "{\"files\":[{\"id\":\"F08BV44JT37\",\"title\":\"Log\"}..[+84 bytes]..og\"}"
+[2025-02-05T17:44:52.5327] 491735: [lib:info] POST #13 168ms ⇓400B ⇑132B 3.68.170.153 HTTP 200 https://slack.com/api/files.completeUploadExternal
+[2025-02-05T17:44:52.5330] 491735: [slack:info] response from https://slack.com/api/files.completeUploadExternal: {
+[2025-02-05T17:44:52.5330] 491735: [slack:info]   "ok": true,
+[2025-02-05T17:44:52.5330] 491735: [slack:info]   "files": [
+[2025-02-05T17:44:52.5330] 491735: [slack:info]     {
+[2025-02-05T17:44:52.5330] 491735: [slack:info]       "id": "F08BV44JT37",
+[2025-02-05T17:44:52.5330] 491735: [slack:info]       "created": 1738777491,
+[2025-02-05T17:44:52.5330] 491735: [slack:info]       "timestamp": 1738777491,
+[2025-02-05T17:44:52.5330] 491735: [slack:info]       "name": "log.txt",
+[2025-02-05T17:44:52.5331] 491735: [slack:info]       "title": "Log",
+[2025-02-05T17:44:52.5331] 491735: [slack:info]       "mimetype": "",
+[2025-02-05T17:44:52.5331] 491735: [slack:info]       "filetype": "",
+[2025-02-05T17:44:52.5400] 491735: [slack:info]       "pretty_type": "",
+[2025-02-05T17:44:52.5400] 491735: [slack:info]       "user": "U080UPHS867",
+[2025-02-05T17:44:52.5400] 491735: [slack:info]       "user_team": "T081D8PEFSL",
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "editable": false,
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "size": 2167,
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "mode": "hosted",
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "is_external": false,
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "external_type": "",
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "is_public": false,
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "public_url_shared": false,
+[2025-02-05T17:44:52.5401] 491735: [slack:info]       "display_as_bot": false,
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "username": "",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "url_private": "https://files.slack.com/files-pri/T081D8PEFSL-F08BV44JT37/log.txt",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "url_private_download": "https://files.slack.com/files-pri/T081D8PEFSL-F08BV44JT37/download/log.txt",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "media_display_type": "unknown",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "permalink": "https://monorobot-tests.slack.com/files/U080UPHS867/F08BV44JT37/log.txt",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "permalink_public": "https://slack-files.com/T081D8PEFSL-F08BV44JT37-91f5099acd",
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "comments_count": 0,
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "is_starred": false,
+[2025-02-05T17:44:52.5402] 491735: [slack:info]       "shares": {},
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "channels": [],
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "groups": [],
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "ims": [],
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "has_more_shares": false,
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "has_rich_preview": false,
+[2025-02-05T17:44:52.5403] 491735: [slack:info]       "file_access": "visible"
+[2025-02-05T17:44:52.5403] 491735: [slack:info]     }
+[2025-02-05T17:44:52.5403] 491735: [slack:info]   ]
+[2025-02-05T17:44:52.5404] 491735: [slack:info] }
+[2025-02-05T17:44:52.5405] 491735: [slack:info] sending to a
+[2025-02-05T17:44:52.5405] 491735: [slack:info] data: {"channel":"a","text":"private: https://files.slack.com/files-pri/T081D8PEFSL-F08BV44JT37/log.txt private_download: https://files.slack.com/files-pri/T081D8PEFSL-F08BV44JT37/download/log.txt permalink: https://monorobot-tests.slack.com/files/U080UPHS867/F08BV44JT37/log.txt, permalink_public: https://slack-files.com/T081D8PEFSL-F08BV44JT37-91f5099acd","unfurl_links":false}
+[2025-02-05T17:44:52.5405] 491735: [lib:info] POST #14 https://slack.com/api/chat.postMessage application/json; charset=utf-8 "{\"channel\":\"a\",\"text\":\"private: https://file..[+326 bytes]..lse}"
+[2025-02-05T17:44:52.7905] 491735: [lib:info] POST #14 250ms ⇓482B ⇑374B 3.68.170.153 HTTP 200 https://slack.com/api/chat.postMessage
+[2025-02-05T17:47:03.3652] 491735: [signal:info] Received signal -6 (exit)...
+[2025-02-05T17:47:03.3699] 491735: [httpev:info] canceling accept loop
+[2025-02-05T17:47:03.3699] 491735: [httpev:info] monorobot 127.0.0.1:8080 exit
+[2025-02-05T17:47:03.3699] 491735: [signal:info] Signal handler done.
+[2025-02-05T17:52:47.7054] 501196: [monorobot:info] monorobot starting
+[2025-02-05T17:52:47.7055] 501196: [context:info] loading saved state from file state.json
+[2025-02-05T17:52:47.7068] 501196: [httpev:info] monorobot listen TCP 127.0.0.1:8080
+[2025-02-05T17:52:47.7069] 501196: [action:info] updating github to slack username mapping
+[2025-02-05T17:52:47.7069] 501196: [slack:info] list users: starting request
+[2025-02-05T17:52:47.7069] 501196: [lib:info] GET #1 https://slack.com/api/users.list? 
+[2025-02-05T17:52:47.8875] 501196: [lib:info] GET #1 181ms ⇓974B ⇑0B 52.29.238.212 HTTP 200 https://slack.com/api/users.list
+[2025-02-05T17:53:12.5777] 501196: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=success, context=buildkite/monorobot-test-pipeline/build, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/111#0194d73e-7f42-427d-ab52-37e8d8846805, branches=[master]
+[2025-02-05T17:53:12.5779] 501196: [lib:info] GET #2 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json 
+[2025-02-05T17:53:12.8229] 501196: [lib:info] GET #2 245ms ⇓790B ⇑0B 140.82.121.6 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/contents/.monorobot.json
+[2025-02-05T17:53:12.8231] 501196: [context:info] using prefix routing:
+[2025-02-05T17:53:12.8232] 501196: [context:info] using label routing:
+[2025-02-05T17:53:12.8232] 501196: [context:info] signature checking disabled
+[2025-02-05T17:53:13.5984] 501196: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=pending, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/111#0194d73e-7f47-4bfc-82ee-348591f03a05, branches=[master]
+[2025-02-05T17:53:16.0825] 501196: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline/test, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/111#0194d73e-7f47-4bfc-82ee-348591f03a05, branches=[master]
+[2025-02-05T17:53:16.0828] 501196: [buildkite:info] get build details: starting request
+[2025-02-05T17:53:16.0829] 501196: [lib:info] GET #3 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111 
+[2025-02-05T17:53:16.4651] 501196: [lib:info] GET #3 382ms ⇓2KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111
+[2025-02-05T17:53:16.4653] 501196: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:53:16.4653] 501196: [lib:info] GET #4 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111/jobs/0194d73e-7f47-4bfc-82ee-348591f03a05/log 
+[2025-02-05T17:53:16.5402] 501196: [github:info] [EmileTrotignon/monorobot_test] event status: commit=40467105, state=failure, context=buildkite/monorobot-test-pipeline, target_url=https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/111, branches=[master]
+[2025-02-05T17:53:16.5403] 501196: [lib:info] GET #5 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860 
+[2025-02-05T17:53:16.7032] 501196: [lib:info] GET #5 163ms ⇓1012B ⇑0B 140.82.121.6 HTTP 200 https://api.github.com/repos/EmileTrotignon/monorobot_test/commits/404671053ebacf0245dc5b60566eb85e19465860
+[2025-02-05T17:53:16.7034] 501196: [slack:info] lookup user by email: starting request
+[2025-02-05T17:53:16.7034] 501196: [lib:info] GET #6 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com 
+[2025-02-05T17:53:16.7084] 501196: [lib:info] GET #4 243ms ⇓1KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111/jobs/0194d73e-7f47-4bfc-82ee-348591f03a05/log
+[2025-02-05T17:53:16.8293] 501196: [lib:info] GET #6 126ms ⇓578B ⇑0B 52.29.238.212 HTTP 200 https://slack.com/api/users.lookupByEmail?email=emile.trotignon%40gmail.com
+[2025-02-05T17:53:16.8294] 501196: [buildkite:info] get buildkite job logs: starting request
+[2025-02-05T17:53:16.8294] 501196: [lib:info] GET #7 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111/jobs/0194d73e-7f47-4bfc-82ee-348591f03a05/log 
+[2025-02-05T17:53:17.1278] 501196: [lib:info] GET #7 298ms ⇓1KB ⇑0B 18.239.18.71 HTTP 200 https://api.buildkite.com/v2/organizations/monorobot-test-org/pipelines/monorobot-test-pipeline/builds/111/jobs/0194d73e-7f47-4bfc-82ee-348591f03a05/log
+[2025-02-05T17:53:17.1280] 501196: [slack:info] sending to a
+[2025-02-05T17:53:17.1280] 501196: [slack:info] data: {"channel":"a","text":"<https://buildkite.com/monorobot-test-org/monorobot-test-pipeline|[buildkite/monorobot-test-pipeline]>: Build <https://buildkite.com/monorobot-test-org/monorobot-test-pipeline/builds/111|#​111> failed (8 seconds) for \"test change\"","attachments":[{"fallback":null,"mrkdwn_in":["fields","text"],"color":"danger","text":"*Commit*: `<https://github.com/EmileTrotignon/monorobot_test/commit/404671053ebacf0245dc5b60566eb85e19465860|40467105>` <@U080QC0B951>\n*Branch*: master"}],"unfurl_links":false}
+[2025-02-05T17:53:17.1280] 501196: [lib:info] POST #8 https://slack.com/api/chat.postMessage application/json; charset=utf-8 "{\"channel\":\"a\",\"text\":\"<https://buildkite.co..[+475 bytes]..lse}"
+[2025-02-05T17:53:17.3146] 501196: [lib:info] POST #8 186ms ⇓617B ⇑523B 52.29.238.212 HTTP 200 https://slack.com/api/chat.postMessage
+[2025-02-05T17:53:17.3148] 501196: [slack:info] send file: starting to send file "Log"
+[2025-02-05T17:53:17.3148] 501196: [slack:info] get_upload_URL_external: starting request
+[2025-02-05T17:53:17.3148] 501196: [lib:info] GET #9 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167 
+[2025-02-05T17:53:17.4968] 501196: [lib:info] GET #9 182ms ⇓206B ⇑0B 52.29.238.212 HTTP 200 https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167
+[2025-02-05T17:53:17.4969] 501196: [slack:info] response from https://slack.com/api/files.getUploadURLExternal?filename=log.txt&alt_txt=log&length=2167: {
+[2025-02-05T17:53:17.4969] 501196: [slack:info]   "ok": true,
+[2025-02-05T17:53:17.4969] 501196: [slack:info]   "upload_url": "https://files.slack.com/upload/v1/CwABAAAAXAoAAdo4qiZLGwZaCgACGCFhYE2VGjAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlkwUDZTVFUACgAEAAAAAAAACHcACwACAAAAFN_fRfhDK5baHgUshecbC0RdJ9lZAA",
+[2025-02-05T17:53:17.4970] 501196: [slack:info]   "file_id": "F08BY0P6STU"
+[2025-02-05T17:53:17.4970] 501196: [slack:info] }
+[2025-02-05T17:53:17.4970] 501196: [slack:info] post_file_content: starting file upload to https://files.slack.com/upload/v1/CwABAAAAXAoAAdo4qiZLGwZaCgACGCFhYE2VGjAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlkwUDZTVFUACgAEAAAAAAAACHcACwACAAAAFN_fRfhDK5baHgUshecbC0RdJ9lZAA
+[2025-02-05T17:53:17.4970] 501196: [slack:info] post_file_content: starting request
+[2025-02-05T17:53:17.4970] 501196: [lib:info] POST #10 https://files.slack.com/upload/v1/CwABAAAAXAoAAdo4qiZLGwZaCgACGCFhYE2VGjAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlkwUDZTVFUACgAEAAAAAAAACHcACwACAAAAFN_fRfhDK5baHgUshecbC0RdJ9lZAA application/octet-stream "~~~ Preparing working directory\r\n$ cd /home/..[+2119 bytes].. 1\r\n"
+[2025-02-05T17:53:18.0903] 501196: [lib:info] POST #10 593ms ⇓9B ⇑2KB 18.65.39.68 HTTP 200 https://files.slack.com/upload/v1/CwABAAAAXAoAAdo4qiZLGwZaCgACGCFhYE2VGjAMAAMLAAEAAAALVDA4MUQ4UEVGU0wLAAIAAAALVTA4MFVQSFM4NjcLAAMAAAALRjA4QlkwUDZTVFUACgAEAAAAAAAACHcACwACAAAAFN_fRfhDK5baHgUshecbC0RdJ9lZAA
+[2025-02-05T17:53:18.0903] 501196: [slack:info] post_file_content: upload file successful: "OK - 2167"
+[2025-02-05T17:53:18.0904] 501196: [slack:info] send file: complete_upload_external to channel: "a"
+[2025-02-05T17:53:18.0904] 501196: [slack:info] list channels: starting request
+[2025-02-05T17:53:18.0904] 501196: [lib:info] GET #11 https://slack.com/api/conversations.list? 
+[2025-02-05T17:53:18.2248] 501196: [lib:info] GET #11 134ms ⇓871B ⇑0B 52.29.238.212 HTTP 200 https://slack.com/api/conversations.list
+[2025-02-05T17:53:18.2250] 501196: [slack:info] channel_id_of_name: found channel "a" has id "C080HS0VBUN"
+[2025-02-05T17:53:18.2250] 501196: [slack:info] join channel: starting request
+[2025-02-05T17:53:18.2251] 501196: [lib:info] POST #12 https://slack.com/api/conversations.join application/json; charset=utf-8 "{\"channel\":\"C080HS0VBUN\"}"
+[2025-02-05T17:53:18.3658] 501196: [lib:info] POST #12 141ms ⇓479B ⇑25B 52.29.238.212 HTTP 200 https://slack.com/api/conversations.join
+[2025-02-05T17:53:18.3660] 501196: [slack:info] data: {"files":[{"id":"F08BY0P6STU","title":"Log"}],"channel_id":"C080HS0VBUN","initial_comment":"This is a log"}
+[2025-02-05T17:53:18.3660] 501196: [slack:info] complete_upload_external: starting request
+[2025-02-05T17:53:18.3661] 501196: [lib:info] POST #13 https://slack.com/api/files.completeUploadExternal application/json; charset=utf-8 "{\"files\":[{\"id\":\"F08BY0P6STU\",\"title\":\"Log\"}..[+59 bytes]..og\"}"
+[2025-02-05T17:53:18.6607] 501196: [lib:info] POST #13 295ms ⇓401B ⇑107B 52.29.238.212 HTTP 200 https://slack.com/api/files.completeUploadExternal
+[2025-02-05T17:53:18.6609] 501196: [slack:info] response from https://slack.com/api/files.completeUploadExternal: {
+[2025-02-05T17:53:18.6609] 501196: [slack:info]   "ok": true,
+[2025-02-05T17:53:18.6609] 501196: [slack:info]   "files": [
+[2025-02-05T17:53:18.6609] 501196: [slack:info]     {
+[2025-02-05T17:53:18.6609] 501196: [slack:info]       "id": "F08BY0P6STU",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "created": 1738777997,
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "timestamp": 1738777997,
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "name": "log.txt",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "title": "Log",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "mimetype": "",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "filetype": "",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "pretty_type": "",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "user": "U080UPHS867",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "user_team": "T081D8PEFSL",
+[2025-02-05T17:53:18.6610] 501196: [slack:info]       "editable": false,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "size": 2167,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "mode": "hosted",
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "is_external": false,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "external_type": "",
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "is_public": false,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "public_url_shared": false,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "display_as_bot": false,
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "username": "",
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "url_private": "https://files.slack.com/files-pri/T081D8PEFSL-F08BY0P6STU/log.txt",
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "url_private_download": "https://files.slack.com/files-pri/T081D8PEFSL-F08BY0P6STU/download/log.txt",
+[2025-02-05T17:53:18.6611] 501196: [slack:info]       "media_display_type": "unknown",
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "permalink": "https://monorobot-tests.slack.com/files/U080UPHS867/F08BY0P6STU/log.txt",
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "permalink_public": "https://slack-files.com/T081D8PEFSL-F08BY0P6STU-2e3399bf15",
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "comments_count": 0,
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "is_starred": false,
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "shares": {},
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "channels": [],
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "groups": [],
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "ims": [],
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "has_more_shares": false,
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "has_rich_preview": false,
+[2025-02-05T17:53:18.6612] 501196: [slack:info]       "file_access": "visible"
+[2025-02-05T17:53:18.6613] 501196: [slack:info]     }
+[2025-02-05T17:53:18.6613] 501196: [slack:info]   ]
+[2025-02-05T17:53:18.6613] 501196: [slack:info] }
+[2025-02-05T17:53:18.6614] 501196: [slack:info] sending to a
+[2025-02-05T17:53:18.6614] 501196: [slack:info] data: {"channel":"a","text":"private: https://files.slack.com/files-pri/T081D8PEFSL-F08BY0P6STU/log.txt private_download: https://files.slack.com/files-pri/T081D8PEFSL-F08BY0P6STU/download/log.txt permalink: https://monorobot-tests.slack.com/files/U080UPHS867/F08BY0P6STU/log.txt, permalink_public: https://slack-files.com/T081D8PEFSL-F08BY0P6STU-2e3399bf15","unfurl_links":false}
+[2025-02-05T17:53:18.6614] 501196: [lib:info] POST #14 https://slack.com/api/chat.postMessage application/json; charset=utf-8 "{\"channel\":\"a\",\"text\":\"private: https://file..[+326 bytes]..lse}"
+[2025-02-05T17:53:18.8462] 501196: [lib:info] POST #14 185ms ⇓484B ⇑374B 52.29.238.212 HTTP 200 https://slack.com/api/chat.postMessage
